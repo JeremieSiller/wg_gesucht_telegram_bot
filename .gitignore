@@ -1,0 +1,6 @@
+*.db
+chromedriver_mac_arm64
+test.txt
+.env
+*.gguf
+chrome-linux64

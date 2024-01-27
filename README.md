@@ -1,0 +1,1 @@
+bot that texts you on telegram when there is a new entry on kleinanzeigen
