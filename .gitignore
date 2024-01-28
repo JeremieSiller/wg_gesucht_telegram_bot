@@ -4,3 +4,7 @@ test.txt
 .env
 *.gguf
 chrome-linux64
+__pycache__
+.pytest_cache
+.mypy_cache
+ids

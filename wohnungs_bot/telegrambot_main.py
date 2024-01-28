@@ -58,6 +58,8 @@ async def start(
 
 def main() -> None:
     options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
     path = ChromeDriverManager().install()
     service = webdriver.ChromeService(executable_path=path)
     driver = webdriver.Chrome(options=options, service=service)
