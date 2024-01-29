@@ -25,3 +25,11 @@ class MappingIdShelve:
     def read_used_ids(self, chat_id: int) -> list[str]:
         with shelve.open(self._file_name) as sh:
             return sh.get(str(chat_id), [])
+
+    def get_chat_ids(self) -> list[str]:
+        with shelve.open(self._file_name) as sh:
+            return list(sh.keys())
+
+    def is_chat_id_already_in_keys(self, chat_id: int) -> bool:
+        with shelve.open(self._file_name) as sh:
+            return str(chat_id) in sh.keys()

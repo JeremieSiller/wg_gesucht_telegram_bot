@@ -56,19 +56,40 @@ async def job(
 async def start(
     update: telegram.Update,
     context: t_ext.ContextTypes.DEFAULT_TYPE,
+    id_store: id_shelve.MappingIdShelve,
 ) -> None:
-    id_store = id_shelve.MappingIdShelve("ids")
-
     partial_job = functools.partial(job, id_store=id_store)
     partial_job.__name__ = "partial_job"  # type: ignore
+    chat_id: int = update.effective_chat.id  # type: ignore
+
+    if id_store.is_chat_id_already_in_keys(chat_id):
+        logging.info(f"{chat_id} tried to register again, returning")
+        await context.bot.send_message(
+            chat_id,
+            text="You are already registered",
+        )
+        return
+
     logging.info(f"New job registered for {update.effective_chat.id}")  # type: ignore
     await context.bot.send_message(
-        update.effective_chat.id,  # type: ignore
+        chat_id,
         text="You successully registered for the kleinanzeigen bot",
     )
     context.job_queue.run_repeating(  # type: ignore
-        partial_job, interval=10, first=0, chat_id=update.effective_message.chat_id  # type: ignore
+        partial_job, interval=10, first=0, chat_id=chat_id
     )
+
+
+def _register_existing_chat_id_jobs(
+    application: t_ext.Application, id_store: id_shelve.MappingIdShelve
+) -> None:
+    chat_ids = id_store.get_chat_ids()
+    partial_job = functools.partial(job, id_store=id_store)
+    partial_job.__name__ = "partial_job"  # type: ignore
+    for chat_id in chat_ids:
+        application.job_queue.run_repeating(  # type: ignore
+            partial_job, interval=10, first=0, chat_id=int(chat_id)
+        )
 
 
 def main() -> None:
@@ -77,9 +98,11 @@ def main() -> None:
     application = (
         t_ext.Application.builder().token(config.settings.telegram_token).build()
     )
+    id_store = id_shelve.MappingIdShelve(config.settings.ids_file_name)
+    _register_existing_chat_id_jobs(application, id_store)
 
-    application.add_handler(t_ext.CommandHandler(["start"], start))
-
+    partial_start = functools.partial(start, id_store=id_store)
+    application.add_handler(t_ext.CommandHandler(["start"], partial_start))
     application.run_polling(allowed_updates=telegram.Update.ALL_TYPES)
 
 
