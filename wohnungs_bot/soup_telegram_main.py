@@ -25,36 +25,39 @@ def _get_current_ids_and_urls() -> list[tuple[str, str]]:
 
     soup = bs4.BeautifulSoup(result.text, "lxml")
     ads = soup.find_all("article", {"class": "aditem"})
-    return [(item.attrs["data-adid"], item.attrs["data-href"]) for item in ads]
+    return [(ad.attrs["data-adid"], ad.attrs["data-href"]) for ad in ads]
 
 
 async def job(
-    context: t_ext.ContextTypes.DEFAULT_TYPE, id_store: id_shelve.IdShelve
+    context: t_ext.ContextTypes.DEFAULT_TYPE, id_store: id_shelve.MappingIdShelve
 ) -> None:
     logging.info(f"Loading base_url {config.settings.kleinanzeigen_url}")
+    chat_id: int = context.job.chat_id  # type: ignore
 
     ids_and_links = _get_current_ids_and_urls()
     new_ids = [item[0] for item in ids_and_links]
-    old_ids = id_store.read_used_ids()
+    old_ids = id_store.read_used_ids(chat_id)
 
     unused_ids = list(set(new_ids) - set(old_ids))
     logging.info(f"Found ads with new ids: {unused_ids}")
     if not unused_ids:
         return
 
-    strings = [f"{base_url}{item[1]}\n" for item in ids_and_links]
+    strings = [
+        f"{base_url}{item[1]}\n" for item in ids_and_links if item[0] in unused_ids
+    ]
     message = "\n".join(strings)
 
-    logging.info(f"Sending message: '{message}' to {context.job.chat_id}")  # type: ignore
-    await context.bot.send_message(context.job.chat_id, message)  # type: ignore
-    id_store.store_used_ids(list(set(new_ids + old_ids)))
+    logging.info(f"Sending message: '{message}' to {chat_id}")
+    await context.bot.send_message(chat_id, message)  # type: ignore
+    id_store.store_used_ids(chat_id, list(set(new_ids + old_ids)))
 
 
 async def start(
     update: telegram.Update,
     context: t_ext.ContextTypes.DEFAULT_TYPE,
 ) -> None:
-    id_store = id_shelve.IdShelve("ids")
+    id_store = id_shelve.MappingIdShelve("ids")
 
     partial_job = functools.partial(job, id_store=id_store)
     partial_job.__name__ = "partial_job"  # type: ignore
