@@ -77,5 +77,5 @@ class KleinanzeigenCrawler:
     def base_url(self) -> str:
         return self._base_url
 
-
-# %%
+    def set_new_driver(self, driver: webdriver.Chrome) -> None:
+        self._driver = driver

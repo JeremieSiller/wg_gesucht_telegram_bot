@@ -3,6 +3,7 @@ import logging
 
 import telegram
 from selenium import webdriver
+from selenium.common.exceptions import InvalidSessionIdException
 from telegram import ext as t_ext
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -13,7 +14,7 @@ logging.basicConfig(
 )
 
 
-async def job(
+async def try_job(
     context: t_ext.ContextTypes.DEFAULT_TYPE,
     crawler: kleinanzeigen_sel.KleinanzeigenCrawler,
     id_store: id_shelve.IdShelve,
@@ -37,6 +38,19 @@ async def job(
     id_store.store_used_ids(list(set(new_ids + old_ids)))
 
 
+async def job(
+    context: t_ext.ContextTypes.DEFAULT_TYPE,
+    crawler: kleinanzeigen_sel.KleinanzeigenCrawler,
+    id_store: id_shelve.IdShelve,
+) -> None:
+    try:
+        await try_job(context, crawler, id_store)
+    except InvalidSessionIdException:
+        logging.info("Job failed, retriing with new session")
+        crawler.set_new_driver(get_driver())
+        await try_job(context, crawler, id_store)
+
+
 async def start(
     update: telegram.Update,
     context: t_ext.ContextTypes.DEFAULT_TYPE,
@@ -52,19 +66,25 @@ async def start(
         text="You successully registered for the wohnungs notifier",
     )
     context.job_queue.run_repeating(  # type: ignore
-        partial_job, interval=60, first=0, chat_id=update.effective_message.chat_id  # type: ignore
+        partial_job, interval=20, first=0, chat_id=update.effective_message.chat_id  # type: ignore
     )
 
 
-def main() -> None:
+def get_driver() -> webdriver.Chrome:
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     path = ChromeDriverManager().install()
     service = webdriver.ChromeService(executable_path=path)
-    driver = webdriver.Chrome(options=options, service=service)
+    return webdriver.Chrome(options=options, service=service)
+
+
+def main() -> None:
     base_url = config.settings.kleinanzeigen_url
-    crawler = kleinanzeigen_sel.KleinanzeigenCrawler(base_url=base_url, driver=driver)
+    crawler = kleinanzeigen_sel.KleinanzeigenCrawler(
+        base_url=base_url, driver=get_driver()
+    )
 
     application = (
         t_ext.Application.builder().token(config.settings.telegram_token).build()
