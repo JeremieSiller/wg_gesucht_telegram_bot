@@ -47,7 +47,7 @@ def _get_add_data() -> list[AdData]:
 
     data_list = []
     for ad in ads:
-        sub_soup = bs4.BeautifulSoup(str(ad))
+        sub_soup = bs4.BeautifulSoup(str(ad), "lxml")
         price = sub_soup.find(
             "p", {"class": "aditem-main--middle--price-shipping--price"}
         )
@@ -84,6 +84,8 @@ async def job(
         if item.id in unused_ids and item.price < config.settings.max_price
     ]
     message = "\n".join(strings)
+    if not message:
+        return
 
     logging.info(f"Sending message: '{message}' to {chat_id}")
     await context.bot.send_message(chat_id, message)  # type: ignore
