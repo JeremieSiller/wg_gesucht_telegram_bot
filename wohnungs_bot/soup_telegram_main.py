@@ -1,5 +1,6 @@
 import functools
 import logging
+from dataclasses import dataclass
 from urllib import parse as url_parse
 
 import bs4
@@ -16,7 +17,25 @@ logging.basicConfig(
 base_url = url_parse.urlparse(config.settings.kleinanzeigen_url).netloc
 
 
-def _get_current_ids_and_urls() -> list[tuple[str, str]]:
+@dataclass
+class AdData:
+    id: str
+    ref: str
+    price: int
+
+
+def _convert_price_to_int(price_string: str) -> int:
+    stripped_string = price_string.strip()
+    no_currency = stripped_string.replace("€", "").strip()
+
+    no_seperator = no_currency.replace(".", "")
+    try:
+        return int(no_seperator)
+    except ValueError:
+        return 0
+
+
+def _get_add_data() -> list[AdData]:
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
     }
@@ -25,7 +44,23 @@ def _get_current_ids_and_urls() -> list[tuple[str, str]]:
 
     soup = bs4.BeautifulSoup(result.text, "lxml")
     ads = soup.find_all("article", {"class": "aditem"})
-    return [(ad.attrs["data-adid"], ad.attrs["data-href"]) for ad in ads]
+
+    data_list = []
+    for ad in ads:
+        sub_soup = bs4.BeautifulSoup(str(ad))
+        price = sub_soup.find(
+            "p", {"class": "aditem-main--middle--price-shipping--price"}
+        )
+        price_as_int = _convert_price_to_int(price.text)
+        data_list.append(
+            AdData(
+                id=ad["data-adid"],
+                ref=ad["data-href"],
+                price=price_as_int,
+            )
+        )
+
+    return data_list
 
 
 async def job(
@@ -34,8 +69,8 @@ async def job(
     logging.info(f"Loading base_url {config.settings.kleinanzeigen_url}")
     chat_id: int = context.job.chat_id  # type: ignore
 
-    ids_and_links = _get_current_ids_and_urls()
-    new_ids = [item[0] for item in ids_and_links]
+    ad_data = _get_add_data()
+    new_ids = [item.id for item in ad_data]
     old_ids = id_store.read_used_ids(chat_id)
 
     unused_ids = list(set(new_ids) - set(old_ids))
@@ -44,7 +79,9 @@ async def job(
         return
 
     strings = [
-        f"{base_url}{item[1]}\n" for item in ids_and_links if item[0] in unused_ids
+        f"{base_url}{item.ref}\n"
+        for item in ad_data
+        if item.id in unused_ids and item.price < config.settings.max_price
     ]
     message = "\n".join(strings)
 
