@@ -36,3 +36,7 @@ class KleinanzeigenCrawler(asbtract_crawler.Crawler):
                 )
             )
         return data_list
+
+    @property
+    def name(self) -> str:
+        return "kleinanzeigen"

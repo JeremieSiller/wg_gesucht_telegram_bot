@@ -18,3 +18,7 @@ class Crawler(abc.ABC):
     @abc.abstractmethod
     def crawl_offers(self) -> list[Offer]:
         raise NotImplementedError()
+
+    @abc.abstractproperty
+    def name(self) -> str:
+        raise NotImplementedError()

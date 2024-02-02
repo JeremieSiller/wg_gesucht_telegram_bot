@@ -6,7 +6,7 @@ import httpx
 from wohnungs_bot import asbtract_crawler, utils
 
 
-class WgGesuchtCrawler:
+class WgGesuchtCrawler(asbtract_crawler.Crawler):
     def __init__(self, url: str) -> None:
         self._url = url
         self._base_url = parse.urlparse(url).netloc
@@ -33,3 +33,7 @@ class WgGesuchtCrawler:
             )
 
         return wg_offers
+
+    @property
+    def name(self) -> str:
+        return "wg_gesucht"
