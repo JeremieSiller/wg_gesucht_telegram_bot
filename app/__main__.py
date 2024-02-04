@@ -5,11 +5,7 @@ import telegram
 from telegram import ext as t_ext
 
 from app import config, id_shelve
-from app.crawlers import (
-    asbtract_crawler,
-    kleinanzeigen_crawler,
-    wg_gesucht_crawler,
-)
+from app.crawlers import asbtract_crawler, kleinanzeigen_crawler, wg_gesucht_crawler
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO

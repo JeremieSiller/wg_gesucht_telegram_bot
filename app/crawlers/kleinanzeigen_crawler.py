@@ -35,6 +35,8 @@ class KleinanzeigenCrawler(asbtract_crawler.Crawler):
                     link=self._base_url + ad["data-href"],
                     price=price_as_int,
                     title=None,
+                    beginning=None,
+                    until=None,
                 )
             )
         return data_list

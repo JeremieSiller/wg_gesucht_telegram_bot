@@ -1,3 +1,4 @@
+import datetime
 from urllib import parse
 
 import bs4
@@ -6,6 +7,19 @@ import httpx
 from app import utils
 
 from . import asbtract_crawler
+
+
+def _parse_availability(
+    tag: bs4.element.Tag,
+) -> tuple[datetime.date, datetime.date | None]:
+    dates = tag.text.replace(" ", "").replace("\n", "").split("-")
+    if len(dates) == 1:
+        return (datetime.datetime.strptime(dates[0], "%d.%m.%Y"), None)
+    else:
+        return (
+            datetime.datetime.strptime(dates[0], "%d.%m.%Y").date(),
+            datetime.datetime.strptime(dates[1], "%d.%m.%Y").date(),
+        )
 
 
 class WgGesuchtCrawler(asbtract_crawler.Crawler):
@@ -25,12 +39,16 @@ class WgGesuchtCrawler(asbtract_crawler.Crawler):
             a_href = sub_soup.find("a")
             b_price = sub_soup.find("b")
             id = sub_soup.find("div").attrs["data-id"]
+            availability = sub_soup.find("div", {"class": "col-xs-5 text-center"})
+            beginning, until = _parse_availability(availability)
             wg_offers.append(
                 asbtract_crawler.Offer(
                     id=id,
                     title=h3_title.attrs["title"],
                     link=self._base_url + a_href.attrs["href"],
                     price=utils.convert_price_to_int(b_price.string),
+                    beginning=beginning,
+                    until=until,
                 )
             )
 

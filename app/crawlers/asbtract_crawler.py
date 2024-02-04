@@ -1,4 +1,5 @@
 import abc
+import datetime
 from dataclasses import dataclass
 
 
@@ -8,6 +9,8 @@ class Offer:
     title: str | None
     link: str
     price: int
+    beginning: datetime.date | None
+    until: datetime.date | None
 
 
 class Crawler(abc.ABC):

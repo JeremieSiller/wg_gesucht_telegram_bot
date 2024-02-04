@@ -1,9 +1,9 @@
-def convert_price_to_int(price_string: str) -> int:
-    stripped_string = price_string.strip()
-    no_currency = stripped_string.replace("€", "").strip()
+import re
 
-    no_seperator = no_currency.replace(".", "")
+
+def convert_price_to_int(price_string: str) -> int:
+    result = re.sub("[^0-9]", "", price_string)
     try:
-        return int(no_seperator)
+        return int(result)
     except ValueError:
         return 0
