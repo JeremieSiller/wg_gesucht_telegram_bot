@@ -23,9 +23,10 @@ def _parse_availability(
 
 
 class WgGesuchtCrawler(asbtract_crawler.Crawler):
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, filter_verified: bool = True) -> None:
         self._url = url
         self._base_url = parse.urlparse(url).netloc
+        self._filter_verified = filter_verified
 
     def crawl_offers(self) -> list[asbtract_crawler.Offer]:
         result = httpx.get(self._url)
@@ -41,6 +42,8 @@ class WgGesuchtCrawler(asbtract_crawler.Crawler):
             id = sub_soup.find("div").attrs["data-id"]
             availability = sub_soup.find("div", {"class": "col-xs-5 text-center"})
             beginning, until = _parse_availability(availability)
+            if self._filter_verified and offer.text.find("Verifiziert") != -1:
+                continue
             wg_offers.append(
                 asbtract_crawler.Offer(
                     id=id,
