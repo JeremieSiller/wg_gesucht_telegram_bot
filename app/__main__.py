@@ -1,5 +1,6 @@
 import functools
 import logging
+import sys
 
 import telegram
 from telegram import ext as t_ext
@@ -37,7 +38,6 @@ async def job(
             f'{"Available until: " + item.until.strftime("%d-%m-%Y") + "\n" if item.until else ""}'
             f"{item.link}\n"
             for item in ad_data
-            if item.id in unused_ids and item.price < config.settings.max_price
         ]
         if not messages:
             continue
@@ -92,14 +92,27 @@ def _register_existing_chat_id_jobs(
 
 def setup_crawlers() -> None:
     global crawlers
-    crawlers.append(
-        kleinanzeigen_crawler.KleinanzeigenCrawler(config.settings.kleinanzeigen_url)
-    )
-    crawlers.append(wg_gesucht_crawler.WgGesuchtCrawler(config.settings.wg_gesucht_url))
+    if config.settings.kleinanzeigen_url is not None:
+        crawlers.append(
+            kleinanzeigen_crawler.KleinanzeigenCrawler(
+                config.settings.kleinanzeigen_url
+            )
+        )
+    if config.settings.wg_gesucht_url is not None:
+        crawlers.append(
+            wg_gesucht_crawler.WgGesuchtCrawler(config.settings.wg_gesucht_url)
+        )
 
 
 def main() -> None:
-    logging.info("starting job")
+    logging.info("starting telegram bot")
+
+    if (
+        config.settings.kleinanzeigen_url is None
+        and config.settings.kleinanzeigen_url is None
+    ):
+        logging.error("No url set in .env")
+        sys.exit(1)
 
     application = (
         t_ext.Application.builder().token(config.settings.telegram_token).build()

@@ -16,7 +16,7 @@ python-format: python-sort
 	poetry run black .
 
 flake8: $(FILES)
-	poetry run flake8 --max-complexity 10 --ignore E501 .
+	poetry run flake8 --max-complexity 10 --ignore E501,W503 .
 
 mypy: $(FILES)
 	poetry run mypy --ignore-missing-imports --python-version 3.10 --follow-imports=normal --show-column-numbers --disallow-untyped-defs .
