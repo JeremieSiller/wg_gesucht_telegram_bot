@@ -7,7 +7,7 @@ I primarily used it to find new listings for apartments and shared flats and tha
 
 To use this bot, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your-username/wohnungsbot.git`
+1. Clone the repository: `git clone https://github.com/JeremieSiller/kleinanzeigen_bot.git`
 2. Install the dependencies using [Poetry](https://python-poetry.org/): `poetry install`
 3. rename the `example.env` file to `.env`.
 4. Obtain a Telegram Bot token from [BotFather](https://core.telegram.org/bots#botfather) and add it to the `.env` file under `TELEGRAM_TOKEN`.
