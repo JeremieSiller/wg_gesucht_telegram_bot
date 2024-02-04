@@ -30,19 +30,21 @@ async def job(
         if not unused_ids:
             continue
 
-        strings = [
-            f"{item.title + '\n' if item.title else ''}"
-            f"{item.price}\n"
+        messages = [
+            f'{item.title + "\n" if item.title else ""}'
+            f'{"Price: " + str(item.price) + "€\n" if item.price else ""}'
+            f'{"Available from: " + item.beginning.strftime("%d-%m-%Y") + "\n" if item.beginning else ""}'
+            f'{"Available until: " + item.until.strftime("%d-%m-%Y") + "\n" if item.until else ""}'
             f"{item.link}\n"
             for item in ad_data
             if item.id in unused_ids and item.price < config.settings.max_price
         ]
-        message = "\n".join(strings)
-        if not message:
+        if not messages:
             continue
 
-        logging.info(f"Sending message: '{message}' to {chat_id}")
-        await context.bot.send_message(chat_id, message)  # type: ignore
+        for message in messages:
+            logging.info(f"Sending message: '{message}' to {chat_id}")
+            await context.bot.send_message(chat_id, message)  # type: ignore
         id_store.store_used_ids(
             f"{crawler.name}|{chat_id}", list(set(new_ids + old_ids))
         )
