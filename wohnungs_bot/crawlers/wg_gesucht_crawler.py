@@ -15,7 +15,7 @@ class WgGesuchtCrawler(asbtract_crawler.Crawler):
 
     def crawl_offers(self) -> list[asbtract_crawler.Offer]:
         result = httpx.get(self._url)
-        soup = bs4.BeautifulSoup(result.text)
+        soup = bs4.BeautifulSoup(result.text, "lxml")
         offers = soup.find_all("div", {"class": "offer_list_item"})
 
         wg_offers = []
