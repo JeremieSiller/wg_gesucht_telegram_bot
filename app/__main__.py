@@ -4,8 +4,8 @@ import logging
 import telegram
 from telegram import ext as t_ext
 
-from wohnungs_bot import config, id_shelve
-from wohnungs_bot.crawlers import (
+from app import config, id_shelve
+from app.crawlers import (
     asbtract_crawler,
     kleinanzeigen_crawler,
     wg_gesucht_crawler,

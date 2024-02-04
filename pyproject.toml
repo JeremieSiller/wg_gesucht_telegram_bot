@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "wohnungs-bot"
+name = "app"
 version = "0.1.0"
 description = "a bot that will send you a telegram notification when there is a new flat available on kleinanzeigen, immoscout etc."
 authors = ["Jeremie Siller"]

@@ -3,7 +3,7 @@ from urllib import parse
 import bs4
 import httpx
 
-from wohnungs_bot import utils
+from app import utils
 
 from . import asbtract_crawler
 
