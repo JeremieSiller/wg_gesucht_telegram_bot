@@ -3,7 +3,9 @@ from urllib import parse
 import bs4
 import httpx
 
-from wohnungs_bot import asbtract_crawler, utils
+from wohnungs_bot import utils
+
+from . import asbtract_crawler
 
 
 class WgGesuchtCrawler(asbtract_crawler.Crawler):
