@@ -36,6 +36,7 @@ async def job(
             f'{"Price: " + str(item.price) + "€\n" if item.price else ""}'
             f'{"Available from: " + item.beginning.strftime("%d-%m-%Y") + "\n" if item.beginning else ""}'
             f'{"Available until: " + item.until.strftime("%d-%m-%Y") + "\n" if item.until else ""}'
+            f'{"Uploaded: " + item.upload_string + "\n" if item.upload_string else ""}'
             f"{item.link}\n"
             for item in ad_data
             if item.id in unused_ids
@@ -43,7 +44,8 @@ async def job(
         if not messages:
             continue
 
-        for message in messages:
+        # reversed so that newest offer are send last
+        for message in reversed(messages):
             logging.info(f"Sending message: '{message}' to {chat_id}")
             await context.bot.send_message(chat_id, message)  # type: ignore
         id_store.store_used_ids(
