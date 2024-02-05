@@ -52,6 +52,7 @@ class WgGesuchtCrawler(asbtract_crawler.Crawler):
                     price=utils.convert_price_to_int(b_price.string),
                     beginning=beginning,
                     until=until,
+                    upload_string=None,
                 )
             )
 

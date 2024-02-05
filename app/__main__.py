@@ -38,6 +38,7 @@ async def job(
             f'{"Available until: " + item.until.strftime("%d-%m-%Y") + "\n" if item.until else ""}'
             f"{item.link}\n"
             for item in ad_data
+            if item.id in unused_ids
         ]
         if not messages:
             continue
@@ -92,13 +93,13 @@ def _register_existing_chat_id_jobs(
 
 def setup_crawlers() -> None:
     global crawlers
-    if config.settings.kleinanzeigen_url is not None:
+    if config.settings.kleinanzeigen_url:
         crawlers.append(
             kleinanzeigen_crawler.KleinanzeigenCrawler(
                 config.settings.kleinanzeigen_url
             )
         )
-    if config.settings.wg_gesucht_url is not None:
+    if config.settings.wg_gesucht_url:
         crawlers.append(
             wg_gesucht_crawler.WgGesuchtCrawler(config.settings.wg_gesucht_url)
         )

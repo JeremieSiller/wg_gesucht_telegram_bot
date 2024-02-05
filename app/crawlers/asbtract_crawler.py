@@ -9,6 +9,7 @@ class Offer:
     title: str | None
     link: str
     price: int
+    upload_string: str | None
     beginning: datetime.date | None
     until: datetime.date | None
 
