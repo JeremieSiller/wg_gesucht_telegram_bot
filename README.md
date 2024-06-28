@@ -1,7 +1,6 @@
-# Kleinanzeigen + WG Gesucht Bot
+# WG Gesucht Bot
 
-This is a bot that scrapes new entries on Kleinanzeigen and/or WG Gesucht and sends notifications via Telegram when there is a new entry. It helps you stay updated on new listings for any search query you want.
-I primarily used it to find new listings for apartments and shared flats and thats why wg-gesucht is also supported, but you can just use it as a Kleinazeigen bot if you want.
+This is a bot that scrapes new entries on WG Gesucht and sends notifications via Telegram when there is a new entry. It helps you stay updated on new listings for any search query you want. It is able to server mutliple users that can subscribe to different search queries.
 
 ## Usage
 
@@ -9,15 +8,22 @@ To use this bot, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/JeremieSiller/kleinanzeigen_bot.git`
 2. Install the dependencies using [Poetry](https://python-poetry.org/): `poetry install`
-3. rename the `example.env` file to `.env`.
-4. Obtain a Telegram Bot token from [BotFather](https://core.telegram.org/bots#botfather) and add it to the `.env` file under `TELEGRAM_TOKEN`.
-5. Add the url you want to scrape to the `.env` file under `KLEINANZEIGEN_URL` and `WG_GESUCHT_URL` (e.g. `https://www.kleinanzeigen.de/s-berlin/anzeige:angebote/hertha-tickets/k0l3331`).
-6. If you don't want to use WG Gesucht, set `WG_GESUCHT_URL` to `""`.
-7. create file to keep chats persistent: `touch chats.ids` and set the IDS_FILE_NAME variable in the `.env` file to the name of the file you created (e.g. `chats.ids`)
-8. Run the bot: `poetry run python main.py`
-9. send `/start` to your bot and it will start scraping the urls you provided and send you a message with the new listings.
+3. create `.env` file in the root directory and add the following variables:
+```
+TELEGRAM_TOKEN=your_telegram_bot_token # check step 5
+IDS_FILE_NAME=ids.db
+LINK_FILE_NAME=links.db
+```
+4. Create the files `ids.db` and `links.db` in the root directory:
+```
+touch ids.db
+touch links.db
+```
+5. Obtain a Telegram Bot token from [BotFather](https://core.telegram.org/bots#botfather) and add it to the `.env` file under `TELEGRAM_TOKEN`.
+6. Run the bot: `poetry run python main.py`
+7. send `/start` to your bot and it will start scraping the urls you provided and send you a message with the new listings.
 
-- if you want to use certain filters, just add them on kleinanzeigen/wg-gesucht and copy the new url to the `.env` file.
+- if you want to use certain filters, just add them on wg-gesucht and copy the new url to the `/start` command.
 
 Alternatively, you can use Docker to run the bot:
 

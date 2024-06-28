@@ -1,3 +1,4 @@
+"""Not used currently"""
 from urllib import parse
 
 import bs4
