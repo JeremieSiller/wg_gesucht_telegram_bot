@@ -21,6 +21,10 @@ class MappingIdShelve:
         chat_id_strings = self.get_chat_ids()
         return str(chat_id) in [s.split("|")[-1] for s in chat_id_strings]
 
+    def remove_chat_id(self, chat_id: str) -> None:
+        with shelve.open(self._file_name) as sh:
+            del sh[chat_id]
+
 
 class MappingLinkShelve:
     def __init__(self, file_name: str) -> None:
@@ -33,3 +37,7 @@ class MappingLinkShelve:
     def read_link(self, chat_id: str) -> str:
         with shelve.open(self._file_name) as sh:
             return sh.get(chat_id, "")
+
+    def remove_chat_id(self, chat_id: str) -> None:
+        with shelve.open(self._file_name) as sh:
+            del sh[chat_id]

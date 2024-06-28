@@ -101,14 +101,40 @@ async def start(
     )
 
 
+async def stop(
+    update: telegram.Update,
+    context: t_ext.ContextTypes.DEFAULT_TYPE,
+    id_store: id_shelve.MappingIdShelve,
+    link_store: id_shelve.MappingLinkShelve,
+) -> None:
+    chat_id: int = update.effective_chat.id  # type: ignore
+    if not id_store.is_chat_id_already_in_keys(chat_id):
+        logging.info(f"{chat_id} tried to unregister but was not registered")
+        await context.bot.send_message(
+            chat_id,
+            text="You are not registered",
+        )
+        return
+
+    id_store.remove_chat_id(str(chat_id))
+    link_store.remove_chat_id(str(chat_id))
+
+    await context.bot.send_message(
+        chat_id,
+        text="You successully unregistered for the wg_gesucht bot",
+    )
+
+
 async def help_command(
     update: telegram.Update, context: t_ext.ContextTypes.DEFAULT_TYPE
 ) -> None:
     chat_id: int = update.effective_chat.id  # type: ignore
     await context.bot.send_message(
         chat_id,
-        text="You can register for the bot by sending /start <url> where url is the wg-gesucht search page\n"
-        + "To apply filters just add them on the wg-gesucht search page and copy the full url\n",
+        text="You can register for the bot by sending:\n/start <url>\nwhere url is the wg-gesucht search page\n\n"
+        + "To apply filters just add them on the wg-gesucht search page and copy the full url\n\n"
+        + "To unregister send /stop\n\n"
+        + "To get help send /help",
     )
 
 
@@ -138,8 +164,12 @@ def main() -> None:
     _register_existing_chat_id_jobs(application, id_store, link_store=link_store)
 
     partial_start = functools.partial(start, id_store=id_store, link_store=link_store)
+
+    partial_stop = functools.partial(stop, id_store=id_store, link_store=link_store)
+
     application.add_handler(t_ext.CommandHandler(["start"], partial_start))
     application.add_handler(t_ext.CommandHandler(["help"], help_command))
+    application.add_handler(t_ext.CommandHandler(["stop"], partial_stop))
     application.run_polling(allowed_updates=telegram.Update.ALL_TYPES)
 
 
