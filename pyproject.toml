@@ -26,6 +26,7 @@ flake8 = "^7.0.0"
 black = "^23.12.1"
 ipykernel = "^6.29.0"
 ipython = "^8.20.0"
+types-requests = "^2.32.0.20240622"
 
 [build-system]
 requires = ["poetry-core"]
