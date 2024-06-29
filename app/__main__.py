@@ -101,6 +101,37 @@ async def start(
     )
 
 
+async def update(
+    update: telegram.Update,
+    context: t_ext.ContextTypes.DEFAULT_TYPE,
+    id_store: id_shelve.MappingIdShelve,
+    link_store: id_shelve.MappingLinkShelve,
+) -> None:
+    chat_id: int = update.effective_chat.id  # type: ignore
+    if not id_store.is_chat_id_already_in_keys(chat_id):
+        logging.info(f"{chat_id} tried to update but was not registered")
+        await context.bot.send_message(
+            chat_id,
+            text="You are not registered",
+        )
+        return
+
+    args = update.message.text.split(" ")  # type: ignore
+    if len(args) != 2:
+        logging.info(f"Arguments passed: {args}")
+        await context.bot.send_message(
+            chat_id,
+            text="You need to pass exactly one argument, the url to the wg-gesucht search page",
+        )
+        return
+
+    link_store.store_link(str(chat_id), args[1])
+    await context.bot.send_message(
+        chat_id,
+        text="You successully updated the url for the wg_gesucht bot",
+    )
+
+
 async def stop(
     update: telegram.Update,
     context: t_ext.ContextTypes.DEFAULT_TYPE,
@@ -134,6 +165,7 @@ async def help_command(
         text="You can register for the bot by sending:\n/start <url>\nwhere url is the wg-gesucht search page\n\n"
         + "To apply filters just add them on the wg-gesucht search page and copy the full url\n\n"
         + "To unregister send /stop\n\n"
+        + "To update the url send /update <url>\n\n"
         + "To get help send /help",
     )
 
@@ -167,9 +199,12 @@ def main() -> None:
 
     partial_stop = functools.partial(stop, id_store=id_store, link_store=link_store)
 
+    partial_update = functools.partial(update, id_store=id_store, link_store=link_store)
+
     application.add_handler(t_ext.CommandHandler(["start"], partial_start))
     application.add_handler(t_ext.CommandHandler(["help"], help_command))
     application.add_handler(t_ext.CommandHandler(["stop"], partial_stop))
+    application.add_handler(t_ext.CommandHandler(["update"], partial_update))
     application.run_polling(allowed_updates=telegram.Update.ALL_TYPES)
 
 
