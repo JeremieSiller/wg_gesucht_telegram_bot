@@ -1,6 +1,6 @@
 # WG Gesucht Bot
 
-This is a bot that scrapes new entries on WG Gesucht and sends notifications via Telegram when there is a new entry. It helps you stay updated on new listings for any search query you want. It is able to server mutliple users that can subscribe to different search queries.
+This is a bot that scrapes new entries on WG Gesucht and sends notifications via Telegram when there is a new entry. It helps you stay updated on new listings for any search query you want. It is able to serve mutliple users that can subscribe to different search queries.
 
 ## Usage
 
