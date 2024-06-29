@@ -42,6 +42,7 @@ This project was created as a learning experience and is not intended for produc
 - add kleinanzeigen (and other webpages)
 - use actual database instead of shelve
 - handle race conditions properly
+- write tests
 
 ## Additional Resources
 
