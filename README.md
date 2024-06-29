@@ -38,6 +38,10 @@ This project is licensed under the [MIT License](LICENSE).
 
 This project was created as a learning experience and is not intended for production use. It is not affiliated with Kleinanzeigen or WG Gesucht.
 
+## TODO:
+- add kleinanzeigen (and other webpages)
+- use actual database instead of shelve
+- handle race conditions properly
 
 ## Additional Resources
 
